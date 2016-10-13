@@ -8,45 +8,65 @@ package com.louch2010.dbc.pool.base;
   * @see：
   */
 public class BasePoolConfig {
+	// 连接池名称
+	private String poolName;
 	// 最大资源数
-	private int maxConnection;
+	private int maxObjectNum;
 	// 最小资源数
-	private int minConnection;
+	private int minObjectNum;
 	// 初始化资源数
-	private int initConnection;
+	private int initObjectNum;
 	// 空闲线程存活时间
 	private int idleAliveTimeSecond;
 	// 获取资源时最大等待时间
-	private int maxWaitTimeSecondForGetConnection;
+	private int maxWaitTimeSecondForGetObject;
 	// 获取之前先进行资源可用性检查
 	private boolean checkBeforeBorrow;
 	// 还回之前先进行资源可用性检查
 	private boolean checkBeforeReturn;
+	// 定时检查间隔时长
+	private int checkObjectTimeSecond;
 	// 配置文件路径
 	private String configFilePath;
-
-	public int getMaxConnection() {
-		return maxConnection;
+	
+	public String getPoolName() {
+		return poolName;
 	}
 
-	public void setMaxConnection(int maxConnection) {
-		this.maxConnection = maxConnection;
+	public void setPoolName(String poolName) {
+		this.poolName = poolName;
 	}
 
-	public int getMinConnection() {
-		return minConnection;
+	public int getMaxObjectNum() {
+		return maxObjectNum;
 	}
 
-	public void setMinConnection(int minConnection) {
-		this.minConnection = minConnection;
+	public void setMaxObjectNum(int maxObjectNum) {
+		this.maxObjectNum = maxObjectNum;
 	}
 
-	public int getInitConnection() {
-		return initConnection;
+	public int getMinObjectNum() {
+		return minObjectNum;
 	}
 
-	public void setInitConnection(int initConnection) {
-		this.initConnection = initConnection;
+	public void setMinObjectNum(int minObjectNum) {
+		this.minObjectNum = minObjectNum;
+	}
+
+	public int getInitObjectNum() {
+		return initObjectNum;
+	}
+
+	public void setInitObjectNum(int initObjectNum) {
+		this.initObjectNum = initObjectNum;
+	}
+
+	public int getMaxWaitTimeSecondForGetObject() {
+		return maxWaitTimeSecondForGetObject;
+	}
+
+	public void setMaxWaitTimeSecondForGetObject(int maxWaitTimeSecondForGetObject) {
+		this.maxWaitTimeSecondForGetObject = maxWaitTimeSecondForGetObject;
 	}
 
 	public int getIdleAliveTimeSecond() {
@@ -55,15 +75,6 @@ public class BasePoolConfig {
 
 	public void setIdleAliveTimeSecond(int idleAliveTimeSecond) {
 		this.idleAliveTimeSecond = idleAliveTimeSecond;
-	}
-
-	public int getMaxWaitTimeSecondForGetConnection() {
-		return maxWaitTimeSecondForGetConnection;
-	}
-
-	public void setMaxWaitTimeSecondForGetConnection(
-			int maxWaitTimeSecondForGetConnection) {
-		this.maxWaitTimeSecondForGetConnection = maxWaitTimeSecondForGetConnection;
 	}
 
 	public boolean isCheckBeforeBorrow() {
@@ -90,4 +101,11 @@ public class BasePoolConfig {
 		this.configFilePath = configFilePath;
 	}
 
+	public int getCheckObjectTimeSecond() {
+		return checkObjectTimeSecond;
+	}
+
+	public void setCheckObjectTimeSecond(int checkObjectTimeSecond) {
+		this.checkObjectTimeSecond = checkObjectTimeSecond;
+	}
 }

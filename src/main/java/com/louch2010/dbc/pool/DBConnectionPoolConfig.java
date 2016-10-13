@@ -1,6 +1,13 @@
 package com.louch2010.dbc.pool;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Properties;
+
 import com.louch2010.dbc.pool.base.BasePoolConfig;
+import com.louch2010.dbc.pool.constants.Constant;
+import com.louch2010.dbc.pool.utils.IOUtil;
 
 /**
  * @Description: 连接池配置
@@ -10,8 +17,6 @@ import com.louch2010.dbc.pool.base.BasePoolConfig;
  * @see：
  */
 public class DBConnectionPoolConfig extends BasePoolConfig{
-	// 连接池名称
-	private String poolName;
 	// 驱动
 	private String driver;
 	// 数据库连接url
@@ -20,15 +25,76 @@ public class DBConnectionPoolConfig extends BasePoolConfig{
 	private String username;
 	// 密码
 	private String password;
+	//数据库类型
+	private String dbType;
 	// 是否为dubug模式
 	private boolean debug;
-
-	public String getPoolName() {
-		return poolName;
+	//登录超时时间
+	private int loginTimeout;
+	
+	public DBConnectionPoolConfig(String configFilePath){
+		setConfigFilePath(configFilePath);
+		loadProperties();
 	}
-
-	public void setPoolName(String poolName) {
-		this.poolName = poolName;
+	
+	/**
+	  *description : 加载配置
+	  *@param      : 
+	  *@return     : void
+	  *modified    : 1、2016年10月13日 下午5:18:23 由 luocihang 创建 	   
+	  */ 
+	private void loadProperties(){
+		String configFilePath = this.getConfigFilePath();
+		InputStream is = null;
+		try {
+			is = new FileInputStream(new File(configFilePath));
+	        Properties prop = new Properties();
+	        prop.load(is);
+	        setProperties(prop);
+		} catch (Exception e) {
+			throw new RuntimeException("加载配置文件失败！" + configFilePath, e);
+		} finally{
+			IOUtil.closeQuietly(is);
+		}
+	}
+	
+	/**
+	  *description : 设置属性
+	  *@param      : @param prop
+	  *@return     : void
+	  *modified    : 1、2016年10月13日 下午5:18:32 由 luocihang 创建 	   
+	  */ 
+	private void setProperties(Properties prop){
+		setPoolName(prop.getProperty("dbc.pool.name", Constant.POOL_CONFIG_DEFAULT.POOL_NAME));
+		setMaxObjectNum(Integer.parseInt(prop.getProperty("dbc.pool.connect.max", Constant.POOL_CONFIG_DEFAULT.MAX_CONNECT_NUM)));
+		setMinObjectNum(Integer.parseInt(prop.getProperty("dbc.pool.connect.min", Constant.POOL_CONFIG_DEFAULT.MIN_CONNECT_NUM)));
+		setInitObjectNum(Integer.parseInt(prop.getProperty("dbc.pool.connect.init", Constant.POOL_CONFIG_DEFAULT.INIT_CONNECT_NUM)));
+		setIdleAliveTimeSecond(Integer.parseInt(prop.getProperty("dbc.pool.connect.idleAliveTime", Constant.POOL_CONFIG_DEFAULT.IDLE_ALIVE_TIMES_ECOND)));
+		setMaxWaitTimeSecondForGetObject(Integer.parseInt(prop.getProperty("dbc.pool.connect.maxWaitTime", Constant.POOL_CONFIG_DEFAULT.MAX_WAIT_TIME)));
+		setCheckBeforeBorrow(Boolean.parseBoolean(prop.getProperty("dbc.pool.connect.check.borrow", Constant.POOL_CONFIG_DEFAULT.CHECK_BEFORE_BORROW)));
+		setCheckBeforeReturn(Boolean.parseBoolean(prop.getProperty("dbc.pool.connect.check.return", Constant.POOL_CONFIG_DEFAULT.CHECK_BEFORE_RETURN)));
+		setCheckObjectTimeSecond(Integer.parseInt(prop.getProperty("dbc.pool.connect.check.interval", Constant.POOL_CONFIG_DEFAULT.CHECK_INTERVAL)));
+		setDriver(prop.getProperty("dbc.driver"));
+		setUrl(prop.getProperty("dbc.url"));
+		setUsername(prop.getProperty("dbc.username"));
+		setPassword(prop.getProperty("dbc.password"));
+		setDebug(Boolean.parseBoolean(prop.getProperty("dbc.debug", Constant.POOL_CONFIG_DEFAULT.DEBUG)));
+		setLoginTimeout(Integer.parseInt(prop.getProperty("dbc.logintTimeout", Constant.POOL_CONFIG_DEFAULT.LOGIN_TIMEOUT)));
+		//设置数据库类型
+		String[] buf = this.url.split(":");
+        if (buf.length < 2) {
+            return;
+        }
+        String dbf = buf[1];
+        if (dbf.compareToIgnoreCase(Constant.DB_TYPE.ORACLE) == 0) {
+            setDbType(Constant.DB_TYPE.ORACLE);
+        } else if (dbf.compareToIgnoreCase(Constant.DB_TYPE.MYSQL) == 0) {
+        	setDbType(Constant.DB_TYPE.MYSQL);
+        } else if (dbf.compareToIgnoreCase(Constant.DB_TYPE.DB2) == 0) {
+        	setDbType(Constant.DB_TYPE.DB2);
+        } else{
+        	throw new RuntimeException("不支持的数据库类型：" + dbf);
+        }
 	}
 
 	public String getDriver() {
@@ -69,5 +135,21 @@ public class DBConnectionPoolConfig extends BasePoolConfig{
 
 	public void setDebug(boolean debug) {
 		this.debug = debug;
+	}
+
+	public String getDbType() {
+		return dbType;
+	}
+
+	public void setDbType(String dbType) {
+		this.dbType = dbType;
+	}
+
+	public int getLoginTimeout() {
+		return loginTimeout;
+	}
+
+	public void setLoginTimeout(int loginTimeout) {
+		this.loginTimeout = loginTimeout;
 	}
 }

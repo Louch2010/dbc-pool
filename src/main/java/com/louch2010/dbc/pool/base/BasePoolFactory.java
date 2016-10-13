@@ -32,12 +32,4 @@ public interface BasePoolFactory<T> {
 	  *modified    : 1、2016年10月12日 下午8:54:53 由 luocihang 创建 	   
 	  */ 
 	public boolean validateObject(BasePoolObject<T> p);
-	/**
-	  *description : 激活对象
-	  *@param      : @param p
-	  *@param      : @throws Exception
-	  *@return     : void
-	  *modified    : 1、2016年10月12日 下午8:55:04 由 luocihang 创建 	   
-	  */ 
-	public void activateObject(BasePoolObject<T> p) throws Exception;
 }
