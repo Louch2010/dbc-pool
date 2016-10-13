@@ -23,7 +23,7 @@ public class BasePoolObject<T> {
 		this.object = object;
 		this.createTime = new Date();
 		this.borrowedCount = 0;
-		this.status = Constant.POOL_OBJECT_STATUS.IDLE;
+		this.status = Constant.POOL_OBJECT_STATUS.INIT;
 	}
 
 	public T getObject() {

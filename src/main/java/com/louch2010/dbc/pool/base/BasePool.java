@@ -93,6 +93,7 @@ public class BasePool<T> {
 		if(t == null){
 			//如果没有达到最大资源数，则尝试再创建资源
 			if(queue.size() < config.getMaxObjectNum()){
+				logger.info("当前线程数：", queue.size(), "，最大线程数：", config.getMaxObjectNum());
 				BasePoolObject<T> obj = factory.makeObject();
 				allObject.put(this.getObjectIdentityHashCode(obj.getObject()), obj);
 				t = obj.getObject();
@@ -133,7 +134,7 @@ public class BasePool<T> {
 	  *modified    : 1、2016年10月13日 下午2:08:23 由 luocihang 创建 	   
 	  */ 
 	private void doCheck(){
-		logger.info("开始执行检查...");
+		logger.info("开始执行检查...当前队列资源数：", queue.size());
 		for(String hash:allObject.keySet()){
 			BasePoolObject<T> poolObject = allObject.get(hash);
 			//正在使用的，不处理
@@ -154,7 +155,7 @@ public class BasePool<T> {
 			if(poolObject.getStatus() == Constant.POOL_OBJECT_STATUS.IDLE
 					&& queue.size() > config.getMinObjectNum()){
 				Date expireDate = DateUtils.addSeconds(poolObject.getLastReturnTime(), config.getIdleAliveTimeSecond());
-				boolean expire = new Date().before(expireDate);
+				boolean expire = expireDate.before(new Date());
 				if(!expire){
 					continue;
 				}
