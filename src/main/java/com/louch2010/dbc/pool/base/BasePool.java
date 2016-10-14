@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -23,7 +22,8 @@ import com.louch2010.dbc.pool.utils.Logger;
 public class BasePool<T> {
 	private BasePoolConfig config;
 	private BasePoolFactory<T> factory;
-	private LinkedBlockingQueue<T> queue = new LinkedBlockingQueue<T>();
+	private BasePoolQueue<T> queue = new BasePoolQueue<T>();
+	//private LinkedBlockingQueue<T> queue = new LinkedBlockingQueue<T>();
 	private Map<String, BasePoolObject<T>> allObject = new ConcurrentHashMap<String, BasePoolObject<T>>();
 	private Logger logger = new Logger();
 	
@@ -89,20 +89,27 @@ public class BasePool<T> {
 	 * @throws Exception 
 	  */ 
 	public T borrowObject() throws Exception{
-		T t = queue.poll(config.getMaxWaitTimeSecondForGetObject(), TimeUnit.SECONDS);
-		if(t == null){
-			//如果没有达到最大资源数，则尝试再创建资源
-			if(queue.size() < config.getMaxObjectNum()){
-				logger.info("当前线程数：", queue.size(), "，最大线程数：", config.getMaxObjectNum());
-				BasePoolObject<T> obj = factory.makeObject();
-				allObject.put(this.getObjectIdentityHashCode(obj.getObject()), obj);
-				t = obj.getObject();
+		T t = null;
+		BasePoolObject<T> poolObject = null;
+		synchronized (queue) {
+			//如果池为空，且没有达到最大资源数，则尝试再创建资源
+			if(queue.size() == 0 && allObject.size() < config.getMaxObjectNum()){
+				poolObject = factory.makeObject();
+				allObject.put(this.getObjectIdentityHashCode(poolObject.getObject()), poolObject);
+				logger.info("创建资源，当前资源数：", allObject.size());
+				t = poolObject.getObject();
 			}else{
-				throw new Exception("无可用资源，无法获取资源！");
+				t = queue.poll(config.getMaxWaitTimeSecondForGetObject(), TimeUnit.SECONDS);
 			}
 		}
+		if(t == null){
+			logger.error("无可用资源，无法获取资源！");
+			throw new Exception("无可用资源，无法获取资源！");
+		}
 		//对资源属性进行更新
-		BasePoolObject<T> poolObject = allObject.get(this.getObjectIdentityHashCode(t));
+		if(poolObject == null){
+			poolObject = allObject.get(this.getObjectIdentityHashCode(t));
+		}
 		poolObject.setStatus(Constant.POOL_OBJECT_STATUS.ALLOCATED);
 		poolObject.setBorrowedCount(poolObject.getBorrowedCount() + 1);
 		poolObject.setLastBorrowTime(new Date());
@@ -111,6 +118,12 @@ public class BasePool<T> {
 			if(!factory.validateObject(poolObject)){
 				poolObject.setStatus(Constant.POOL_OBJECT_STATUS.INVALID);
 				logger.debug("资源不可用，重新获取！");
+				try {
+					factory.destroyObject(poolObject);
+				} catch (Exception e) {
+					logger.error("销毁资源失败！", e);
+				}
+				allObject.remove(this.getObjectIdentityHashCode(t));
 				return borrowObject();
 			}
 		}
@@ -134,21 +147,11 @@ public class BasePool<T> {
 	  *modified    : 1、2016年10月13日 下午2:08:23 由 luocihang 创建 	   
 	  */ 
 	private void doCheck(){
-		logger.info("开始执行检查...当前队列资源数：", queue.size());
+		logger.info("开始执行检查...当前资源数：", allObject.size());
 		for(String hash:allObject.keySet()){
 			BasePoolObject<T> poolObject = allObject.get(hash);
 			//正在使用的，不处理
 			if(poolObject.getStatus() == Constant.POOL_OBJECT_STATUS.ALLOCATED){
-				continue;
-			}
-			//已经不可用的，销毁
-			if(poolObject.getStatus() == Constant.POOL_OBJECT_STATUS.INVALID){
-				try {
-					factory.destroyObject(poolObject);
-				} catch (Exception e) {
-					logger.error("销毁资源失败！", e);
-				}
-				allObject.remove(hash);
 				continue;
 			}
 			//空闲的，如果当前资源的空闲时间大于最大空闲时间，则销毁

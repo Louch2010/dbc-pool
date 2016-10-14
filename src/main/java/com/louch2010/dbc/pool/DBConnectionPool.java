@@ -72,7 +72,7 @@ public class DBConnectionPool implements DataSource, ObjectFactory{
 			return pool.borrowObject();
 		} catch (Exception e) {
 			logger.println("获取连接失败！" + e);
-			return null;
+			throw new SQLException(e);
 		}
 	}
 
