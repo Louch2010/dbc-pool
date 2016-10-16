@@ -96,6 +96,9 @@ public class DBConnectionPoolConfig extends BasePoolConfig{
         	throw new RuntimeException("不支持的数据库类型：" + dbf);
         }
         //校正（保证数据的合理性）
+        if(getMinObjectNum() < getInitObjectNum()){
+        	setMinObjectNum(getInitObjectNum());
+        }
         if(getInitObjectNum() > getMaxObjectNum()){
         	setInitObjectNum(getMaxObjectNum());
         }

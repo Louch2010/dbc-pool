@@ -20,10 +20,12 @@ import com.louch2010.dbc.pool.utils.Logger;
 public class DBConnectionFactory implements BasePoolFactory<Connection>{
 	
 	private DBConnectionPoolConfig config;
+	private DBConnectionPool pool;
 	private Logger logger = new Logger();
 	
-	public DBConnectionFactory(DBConnectionPoolConfig config){
-		this.config = config;
+	public DBConnectionFactory(DBConnectionPool pool){
+		this.config = pool.getConfig();
+		this.pool = pool;
 	}
 
 	/**
@@ -39,7 +41,8 @@ public class DBConnectionFactory implements BasePoolFactory<Connection>{
 		String user = config.getUsername();
 		String password = config.getPassword();
 		Connection conn = DriverManager.getConnection(url, user, password);
-		return new BasePoolObject<Connection>(conn);
+		DBConnection proxy = new DBConnection(pool, conn);
+		return new BasePoolObject<Connection>(proxy);
 	}
 
 	/**
@@ -51,8 +54,8 @@ public class DBConnectionFactory implements BasePoolFactory<Connection>{
 	  *			   
 	  */ 
 	public void destroyObject(BasePoolObject<Connection> p) throws Exception {
-		Connection conn = p.getObject();
-		conn.close();
+		DBConnection proxy = (DBConnection)p.getObject();
+		proxy.destroy();
 	}
 
 	/**

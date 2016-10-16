@@ -24,12 +24,20 @@ public class DBConnectionPool implements DataSource, ObjectFactory{
 	
 	public DBConnectionPool(String configFilePath){
 		this.configFilePath = configFilePath;
+		init();
+	}
+	
+	public DBConnectionPool(){
+		init();
+	}
+	
+	private void init(){
 		//初始化配置
 		config = new DBConnectionPoolConfig(configFilePath);
 		//加载驱动
 		loadDriver();
 		//初始化工厂
-		BasePoolFactory<Connection> factory = new DBConnectionFactory(config);
+		BasePoolFactory<Connection> factory = new DBConnectionFactory(this);
 		//初始化池
 		pool = new BasePool<Connection>(factory, config);
 	}
@@ -71,9 +79,20 @@ public class DBConnectionPool implements DataSource, ObjectFactory{
 		try {
 			return pool.borrowObject();
 		} catch (Exception e) {
-			logger.println("获取连接失败！" + e);
+			//logger.println("获取连接失败！" + e);
+			e.printStackTrace();
 			throw new SQLException(e);
 		}
+	}
+	
+	/**
+	  *description : 返还资源
+	  *@param      : @param conn
+	  *@return     : void
+	  *modified    : 1、2016年10月14日 下午7:47:58 由 luocihang 创建 	   
+	  */ 
+	public void returnConnection(Connection conn){
+		pool.returnObject(conn);
 	}
 
 	public Connection getConnection(String username, String password)
@@ -124,6 +143,14 @@ public class DBConnectionPool implements DataSource, ObjectFactory{
 
 	public void setConfigFilePath(String configFilePath) {
 		this.configFilePath = configFilePath;
+	}
+
+	public DBConnectionPoolConfig getConfig() {
+		return config;
+	}
+
+	public void setConfig(DBConnectionPoolConfig config) {
+		this.config = config;
 	}
 	
 }

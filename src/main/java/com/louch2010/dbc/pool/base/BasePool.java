@@ -34,7 +34,7 @@ public class BasePool<T> {
 		initPool();
 		//启动定时
 		long interval = config.getCheckObjectTimeSecond() * 1000;
-		new Timer("dbc-pool-check-timer").schedule(new TimerTask() {
+		new Timer(config.getPoolName() + "-check-timer").schedule(new TimerTask() {
 			public void run() {
 				doCheck();
 			}
@@ -95,8 +95,9 @@ public class BasePool<T> {
 			//如果池为空，且没有达到最大资源数，则尝试再创建资源
 			if(queue.size() == 0 && allObject.size() < config.getMaxObjectNum()){
 				poolObject = factory.makeObject();
-				allObject.put(this.getObjectIdentityHashCode(poolObject.getObject()), poolObject);
-				logger.info("创建资源，当前资源数：", allObject.size());
+				String hash = this.getObjectIdentityHashCode(poolObject.getObject());
+				allObject.put(hash, poolObject);
+				logger.debug("创建资源，当前资源数：", allObject.size());
 				t = poolObject.getObject();
 			}else{
 				t = queue.poll(config.getMaxWaitTimeSecondForGetObject(), TimeUnit.SECONDS);
@@ -107,8 +108,9 @@ public class BasePool<T> {
 			throw new Exception("无可用资源，无法获取资源！");
 		}
 		//对资源属性进行更新
+		String hash = this.getObjectIdentityHashCode(t);
 		if(poolObject == null){
-			poolObject = allObject.get(this.getObjectIdentityHashCode(t));
+			poolObject = allObject.get(hash);
 		}
 		poolObject.setStatus(Constant.POOL_OBJECT_STATUS.ALLOCATED);
 		poolObject.setBorrowedCount(poolObject.getBorrowedCount() + 1);
@@ -147,9 +149,10 @@ public class BasePool<T> {
 	  *modified    : 1、2016年10月13日 下午2:08:23 由 luocihang 创建 	   
 	  */ 
 	private void doCheck(){
-		logger.info("开始执行检查...当前资源数：", allObject.size());
+		logger.debug("开始执行检查...当前资源数：", allObject.size());
 		for(String hash:allObject.keySet()){
 			BasePoolObject<T> poolObject = allObject.get(hash);
+			//logger.debug("资源状态：", poolObject.getStatus());
 			//正在使用的，不处理
 			if(poolObject.getStatus() == Constant.POOL_OBJECT_STATUS.ALLOCATED){
 				continue;
@@ -171,7 +174,7 @@ public class BasePool<T> {
 				queue.remove(poolObject.getObject());
 			}
 		}
-		logger.info("检查执行完成！");
+		logger.debug("检查执行完成！");
 	}
 
 	public BasePoolConfig getConfig() {

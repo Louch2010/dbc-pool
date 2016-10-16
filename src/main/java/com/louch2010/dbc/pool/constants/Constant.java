@@ -10,7 +10,7 @@ package com.louch2010.dbc.pool.constants;
 public interface Constant {
 	//池默认配置
 	public interface POOL_CONFIG_DEFAULT{
-		String POOL_NAME = "default_pool_name";
+		String POOL_NAME = "default-dbc-pool-";
 		String MAX_CONNECT_NUM = "10";
 		String MIN_CONNECT_NUM = "1";
 		String INIT_CONNECT_NUM = "3";

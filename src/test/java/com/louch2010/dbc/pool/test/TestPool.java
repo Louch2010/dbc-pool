@@ -23,7 +23,7 @@ public class TestPool {
 						}
 						System.out.println("执行成功，线程名：" + Thread.currentThread().getName());
 						Thread.sleep(10000);
-						pool.releaseConnection(conn);
+						conn.close();
 					} catch (Exception e) {
 						System.out.println("执行失败，线程名：" + Thread.currentThread().getName());
 					}
