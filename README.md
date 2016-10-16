@@ -1,5 +1,5 @@
 # dbc-pool
-java数据库连接池database connection pool，支持集成spring
+java数据库连接池database connection pool，支持集成spring，支持的数据有库：Oracle、MySQL、DB2
 ## 一、java示例
 ### 1、配置文件
 ```
