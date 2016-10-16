@@ -11,16 +11,16 @@ public interface Constant {
 	//池默认配置
 	public interface POOL_CONFIG_DEFAULT{
 		String POOL_NAME = "default-dbc-pool-";
-		String MAX_CONNECT_NUM = "10";
-		String MIN_CONNECT_NUM = "1";
-		String INIT_CONNECT_NUM = "3";
-		String IDLE_ALIVE_TIMES_ECOND = "60";
-		String MAX_WAIT_TIME = "3";
-		String CHECK_BEFORE_BORROW = "false";
-		String CHECK_BEFORE_RETURN = "false";
-		String CHECK_INTERVAL = "60";
-		String DEBUG = "true";
-		String LOGIN_TIMEOUT = "10";
+		int MAX_CONNECT_NUM = 10;
+		int MIN_CONNECT_NUM = 1;
+		int INIT_CONNECT_NUM = 3;
+		int IDLE_ALIVE_TIMES_ECOND = 60;
+		int MAX_WAIT_TIME = 3;
+		boolean CHECK_BEFORE_BORROW = false;
+		boolean CHECK_BEFORE_RETURN = false;
+		int CHECK_INTERVAL = 60;
+		boolean DEBUG = true;
+		int LOGIN_TIMEOUT = 10;
 	}
 	//池资源状态
 	public interface POOL_OBJECT_STATUS{

@@ -11,7 +11,7 @@ public class TestPool {
 	public static void main(String[] args) throws Exception {
 		int count = 10;
 		final CountDownLatch counter = new CountDownLatch(count);
-		final DBConnectionPool pool = new DBConnectionPool("E:/workspaces/dbc-pool/target/classes/jdbc.properties");
+		final DBConnectionPool pool = new DBConnectionPool("classpath:jdbc.properties");
 		for (int i = 0; i < count; i++) {
 			new Thread(new Runnable() {
 				public void run() {

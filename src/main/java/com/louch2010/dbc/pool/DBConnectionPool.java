@@ -15,20 +15,18 @@ import javax.sql.DataSource;
 import com.louch2010.dbc.pool.base.BasePool;
 import com.louch2010.dbc.pool.base.BasePoolFactory;
 
-public class DBConnectionPool implements DataSource, ObjectFactory{
+public class DBConnectionPool extends DBConnectionPoolConfig implements DataSource, ObjectFactory{
 	
-	private DBConnectionPoolConfig config;
-	private String configFilePath;
 	private BasePool<Connection> pool;
 	private PrintWriter logger;
 	
 	public DBConnectionPool(String configFilePath){
-		this.configFilePath = configFilePath;
+		this.setConfigFilePath(configFilePath);
 		this.init();
 	}
 	
 	public DBConnectionPool(){
-		this.init();
+		
 	}
 	
 	/**
@@ -37,15 +35,15 @@ public class DBConnectionPool implements DataSource, ObjectFactory{
 	  *@return     : void
 	  *modified    : 1、2016年10月16日 上午11:01:47 由 luocihang 创建 	   
 	  */ 
-	private void init(){
+	public void init(){
 		//初始化配置
-		config = new DBConnectionPoolConfig(configFilePath);
+		super.initConfig();
 		//加载驱动
-		loadDriver();
+		this.loadDriver();
 		//初始化工厂
 		BasePoolFactory<Connection> factory = new DBConnectionFactory(this);
 		//初始化池
-		pool = new BasePool<Connection>(factory, config);
+		pool = new BasePool<Connection>(factory, this);
 	}
 	
 	/**
@@ -55,7 +53,9 @@ public class DBConnectionPool implements DataSource, ObjectFactory{
 	  *modified    : 1、2016年10月16日 上午11:18:41 由 luocihang 创建 	   
 	  */ 
 	public void destory(){
-		pool.destoryPool();
+		if(pool != null){
+			pool.destoryPool();
+		}
 	}
 	
 	/**
@@ -66,7 +66,7 @@ public class DBConnectionPool implements DataSource, ObjectFactory{
 	  */ 
 	private void loadDriver(){
 		try {
-			Class.forName(config.getDriver());
+			Class.forName(this.getDriver());
 		} catch (ClassNotFoundException e) {
 			logger.println("加载数据库驱动失败！" + e.toString());
 			throw new RuntimeException("加载数据库驱动失败！", e);
@@ -92,6 +92,14 @@ public class DBConnectionPool implements DataSource, ObjectFactory{
 	  *			   
 	  */ 
 	public Connection getConnection() throws SQLException {
+		//如果没有初始化，则需要执行初始化操作
+		if(pool == null){
+			synchronized (this) {
+				if(pool == null){
+					init();
+				}
+			}
+		}
 		try {
 			return pool.borrowObject();
 		} catch (Exception e) {
@@ -124,14 +132,6 @@ public class DBConnectionPool implements DataSource, ObjectFactory{
 		this.logger = out;
 	}
 
-	public void setLoginTimeout(int seconds) throws SQLException {
-		config.setLoginTimeout(seconds);
-	}
-
-	public int getLoginTimeout() throws SQLException {
-		return config.getLoginTimeout();
-	}
-
 	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
 		// TODO Auto-generated method stub
 		return null;
@@ -151,22 +151,6 @@ public class DBConnectionPool implements DataSource, ObjectFactory{
 			Hashtable<?, ?> environment) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	public String getConfigFilePath() {
-		return configFilePath;
-	}
-
-	public void setConfigFilePath(String configFilePath) {
-		this.configFilePath = configFilePath;
-	}
-
-	public DBConnectionPoolConfig getConfig() {
-		return config;
-	}
-
-	public void setConfig(DBConnectionPoolConfig config) {
-		this.config = config;
 	}
 	
 }

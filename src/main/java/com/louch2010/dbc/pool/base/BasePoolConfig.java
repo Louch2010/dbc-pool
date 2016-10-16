@@ -1,5 +1,7 @@
 package com.louch2010.dbc.pool.base;
 
+import com.louch2010.dbc.pool.constants.Constant;
+
 /** 
   * @Description: 资源配置
   * @author: luocihang
@@ -9,23 +11,23 @@ package com.louch2010.dbc.pool.base;
   */
 public class BasePoolConfig {
 	// 连接池名称
-	private String poolName;
+	private String poolName = Constant.POOL_CONFIG_DEFAULT.POOL_NAME;
 	// 最大资源数
-	private int maxObjectNum;
+	private int maxObjectNum = Constant.POOL_CONFIG_DEFAULT.MAX_CONNECT_NUM;
 	// 最小资源数
-	private int minObjectNum;
+	private int minObjectNum = Constant.POOL_CONFIG_DEFAULT.MIN_CONNECT_NUM;
 	// 初始化资源数
-	private int initObjectNum;
+	private int initObjectNum = Constant.POOL_CONFIG_DEFAULT.INIT_CONNECT_NUM;
 	// 空闲线程存活时间
-	private int idleAliveTimeSecond;
+	private int idleAliveTimeSecond = Constant.POOL_CONFIG_DEFAULT.IDLE_ALIVE_TIMES_ECOND;
 	// 获取资源时最大等待时间
-	private int maxWaitTimeSecondForGetObject;
+	private int maxWaitTimeSecondForGetObject = Constant.POOL_CONFIG_DEFAULT.MAX_WAIT_TIME;
 	// 获取之前先进行资源可用性检查
-	private boolean checkBeforeBorrow;
+	private boolean checkBeforeBorrow = Constant.POOL_CONFIG_DEFAULT.CHECK_BEFORE_BORROW;
 	// 还回之前先进行资源可用性检查
-	private boolean checkBeforeReturn;
+	private boolean checkBeforeReturn = Constant.POOL_CONFIG_DEFAULT.CHECK_BEFORE_RETURN;
 	// 定时检查间隔时长
-	private int checkObjectTimeSecond;
+	private int checkObjectTimeSecond = Constant.POOL_CONFIG_DEFAULT.CHECK_INTERVAL;
 	// 配置文件路径
 	private String configFilePath;
 	

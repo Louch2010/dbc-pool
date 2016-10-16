@@ -180,7 +180,7 @@ public class BasePool<T> {
 		logger.debug("开始执行检查...当前资源数：", allObject.size());
 		for(String hash:allObject.keySet()){
 			BasePoolObject<T> poolObject = allObject.get(hash);
-			//logger.debug("资源状态：", poolObject.getStatus());
+			logger.debug("资源状态：", poolObject.getStatus());
 			//正在使用的，不处理
 			if(poolObject.getStatus() == Constant.POOL_OBJECT_STATUS.ALLOCATED){
 				continue;

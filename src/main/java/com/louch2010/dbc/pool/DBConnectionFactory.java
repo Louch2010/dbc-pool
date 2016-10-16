@@ -19,12 +19,10 @@ import com.louch2010.dbc.pool.utils.Logger;
   */
 public class DBConnectionFactory implements BasePoolFactory<Connection>{
 	
-	private DBConnectionPoolConfig config;
 	private DBConnectionPool pool;
 	private Logger logger = new Logger();
 	
 	public DBConnectionFactory(DBConnectionPool pool){
-		this.config = pool.getConfig();
 		this.pool = pool;
 	}
 
@@ -37,9 +35,9 @@ public class DBConnectionFactory implements BasePoolFactory<Connection>{
 	  *			   
 	  */ 
 	public BasePoolObject<Connection> makeObject() throws Exception {
-		String url = config.getUrl();
-		String user = config.getUsername();
-		String password = config.getPassword();
+		String url = pool.getUrl();
+		String user = pool.getUsername();
+		String password = pool.getPassword();
 		Connection conn = DriverManager.getConnection(url, user, password);
 		DBConnection proxy = new DBConnection(pool, conn);
 		return new BasePoolObject<Connection>(proxy);
@@ -68,11 +66,11 @@ public class DBConnectionFactory implements BasePoolFactory<Connection>{
 	  */ 
 	public boolean validateObject(BasePoolObject<Connection> p) {
 		String sql = "";
-		if(config.getDbType().equals(Constant.DB_TYPE.MYSQL)){
+		if(pool.getDbType().equals(Constant.DB_TYPE.MYSQL)){
 			sql = "select now()";
-		}else if(config.getDbType().equals(Constant.DB_TYPE.ORACLE)){
+		}else if(pool.getDbType().equals(Constant.DB_TYPE.ORACLE)){
 			sql = "select systimestamp from dual";
-		}else if(config.getDbType().equals(Constant.DB_TYPE.DB2)){
+		}else if(pool.getDbType().equals(Constant.DB_TYPE.DB2)){
 			sql = "values(current timestamp)";
 		}
 		Connection conn = p.getObject();
