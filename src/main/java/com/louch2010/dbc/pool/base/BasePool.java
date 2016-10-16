@@ -25,6 +25,7 @@ public class BasePool<T> {
 	private BasePoolQueue<T> queue = new BasePoolQueue<T>();
 	//private LinkedBlockingQueue<T> queue = new LinkedBlockingQueue<T>();
 	private Map<String, BasePoolObject<T>> allObject = new ConcurrentHashMap<String, BasePoolObject<T>>();
+	private Timer timer;
 	private Logger logger = new Logger();
 	
 	public BasePool(BasePoolFactory<T> factory, BasePoolConfig config) {
@@ -34,7 +35,8 @@ public class BasePool<T> {
 		initPool();
 		//启动定时
 		long interval = config.getCheckObjectTimeSecond() * 1000;
-		new Timer(config.getPoolName() + "-check-timer").schedule(new TimerTask() {
+		timer = new Timer(config.getPoolName() + "-check-timer");
+		timer.schedule(new TimerTask() {
 			public void run() {
 				doCheck();
 			}
@@ -42,7 +44,7 @@ public class BasePool<T> {
 	}
 	
 	/**
-	  *description : 初始化池子
+	  *description : 初始化资源池
 	  *@param      : 
 	  *@return     : void
 	  *modified    : 1、2016年10月12日 下午9:04:05 由 luocihang 创建 	   
@@ -57,6 +59,32 @@ public class BasePool<T> {
 				logger.error("初始化资源失败！", e);
 			}
 		}
+	}
+	
+	/**
+	  *description : 销毁资源池
+	  *@param      : 
+	  *@return     : void
+	  *modified    : 1、2016年10月16日 上午11:23:02 由 luocihang 创建 	   
+	  */ 
+	public void destoryPool(){
+		//停止定时器
+		if(timer != null){
+			timer.cancel();
+		}
+		//关闭所有资源
+		for(String hash:allObject.keySet()){
+			BasePoolObject<T> poolObject = allObject.get(hash);
+			try {
+				factory.destroyObject(poolObject);
+			} catch (Exception e) {
+				logger.error("关闭资源失败！", e);
+			}
+		}
+		//清空map
+		allObject.clear();
+		//清空队列
+		queue.clear();
 	}
 	
 	/**

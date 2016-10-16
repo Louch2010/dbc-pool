@@ -100,4 +100,16 @@ public class BasePoolQueue<T> {
 		}
 		return false;
 	}
+	
+	/**
+	  *description : 清空资源
+	  *@param      : 
+	  *@return     : void
+	  *modified    : 1、2016年10月16日 上午11:22:36 由 luocihang 创建 	   
+	  */ 
+	public void clear(){
+		synchronized(list){
+			list.clear();
+		}
+	}
 }

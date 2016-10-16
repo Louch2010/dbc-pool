@@ -24,13 +24,19 @@ public class DBConnectionPool implements DataSource, ObjectFactory{
 	
 	public DBConnectionPool(String configFilePath){
 		this.configFilePath = configFilePath;
-		init();
+		this.init();
 	}
 	
 	public DBConnectionPool(){
-		init();
+		this.init();
 	}
 	
+	/**
+	  *description : 初始化
+	  *@param      : 
+	  *@return     : void
+	  *modified    : 1、2016年10月16日 上午11:01:47 由 luocihang 创建 	   
+	  */ 
 	private void init(){
 		//初始化配置
 		config = new DBConnectionPoolConfig(configFilePath);
@@ -40,6 +46,16 @@ public class DBConnectionPool implements DataSource, ObjectFactory{
 		BasePoolFactory<Connection> factory = new DBConnectionFactory(this);
 		//初始化池
 		pool = new BasePool<Connection>(factory, config);
+	}
+	
+	/**
+	  *description : 销毁
+	  *@param      : 
+	  *@return     : void
+	  *modified    : 1、2016年10月16日 上午11:18:41 由 luocihang 创建 	   
+	  */ 
+	public void destory(){
+		pool.destoryPool();
 	}
 	
 	/**
